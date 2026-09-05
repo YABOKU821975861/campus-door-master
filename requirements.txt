@@ -1,0 +1,18 @@
+# Campus Door Master - 依赖列表
+# 核心框架
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+
+# HTTP 客户端
+requests>=2.31.0
+
+# 验证码 OCR 识别
+ddddocr>=1.5.1
+
+# 数据验证与配置
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# 系统工具
+python-dotenv>=1.0.0
+websocket-client>=1.8.0

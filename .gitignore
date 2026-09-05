@@ -1,0 +1,9 @@
+campus-door-master.env
+.env
+.venv/
+__pycache__/
+*.pyc
+storage/*.json
+storage/api_key
+logs/*.log
+.DS_Store
