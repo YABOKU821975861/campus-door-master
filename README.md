@@ -41,6 +41,24 @@ python main.py
 
 启动后访问 `http://127.0.0.1:8000/docs` 查看 Swagger 接口文档。
 
+### CentOS 10
+
+项目提供 `deploy_centos10.sh` 和 `campus-door-master.centos10.service`。将发布包解压到 `/opt/campus_door_master` 后执行：
+
+```bash
+cd /opt/campus_door_master
+sudo bash deploy_centos10.sh
+sudo vi /opt/campus_door_master/campus-door-master.env
+sudo systemctl start campus-door-master
+sudo systemctl status campus-door-master
+```
+
+查看日志：
+
+```bash
+sudo journalctl -u campus-door-master -f
+```
+
 完整接口说明请查看：[API接口文档.md](API接口文档.md)。
 
 ## 目录结构

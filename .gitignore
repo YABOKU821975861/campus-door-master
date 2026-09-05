@@ -7,3 +7,4 @@ storage/*.json
 storage/api_key
 logs/*.log
 .DS_Store
+*.tar.gz

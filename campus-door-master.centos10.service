@@ -1,0 +1,21 @@
+[Unit]
+Description=Campus Door Master API Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=campusdoor
+Group=campusdoor
+WorkingDirectory=/opt/campus_door_master
+ExecStart=/opt/campus_door_master/.venv/bin/python /opt/campus_door_master/main.py
+EnvironmentFile=-/opt/campus_door_master/campus-door-master.env
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
