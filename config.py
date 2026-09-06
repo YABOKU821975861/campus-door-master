@@ -164,7 +164,7 @@ ADO_VERIFY_SSL: bool = os.getenv("ADO_VERIFY_SSL", "false").lower() in {"1", "tr
 # =============================================================================
 # IDST 设备接口配置（与 ADO 门禁体系独立）
 # =============================================================================
-IDST_BASE_URL: str = os.getenv("IDST_BASE_URL", "")
+IDST_BASE_URL: str = os.getenv("IDST_BASE_URL", "https://172.20.196.253")
 IDST_LOGIN_ENDPOINT: str = os.getenv("IDST_LOGIN_ENDPOINT", "/api2/site/login")
 IDST_CAPTCHA_ENDPOINT: str = os.getenv("IDST_CAPTCHA_ENDPOINT", "/api2/site/captcha-image")
 IDST_RF_CONTROL_ENDPOINT: str = os.getenv("IDST_RF_CONTROL_ENDPOINT", "/api2/device/rf-ctrl")

@@ -41,26 +41,6 @@ python main.py
 
 启动后访问 `http://127.0.0.1:8000/docs` 查看 Swagger 接口文档。
 
-### CentOS 10
-
-项目提供 `deploy_centos10.sh` 和 `campus-door-master.centos10.service`。将发布包解压到 `/opt/campus_door_master` 后执行：
-
-```bash
-cd /opt/campus_door_master
-sudo bash deploy_centos10.sh
-sudo vi /opt/campus_door_master/campus-door-master.env
-sudo systemctl start campus-door-master
-sudo systemctl status campus-door-master
-```
-
-查看日志：
-
-```bash
-sudo journalctl -u campus-door-master -f
-```
-
-完整接口说明请查看：[API接口文档.md](API接口文档.md)。
-
 ## 目录结构
 
 ```text
@@ -115,7 +95,7 @@ campus-door-master.env
 IDST 配置示例：
 
 ```env
-IDST_BASE_URL=https://your-idst-server
+IDST_BASE_URL=https://172.20.196.253
 IDST_USERNAME=你的IDST账号
 IDST_PASSWORD=你的IDST密码
 IDST_LOGIN_TIMEOUT_SECONDS=10
@@ -278,8 +258,7 @@ X-API-Key: storage/api_key 的内容
 
 ```json
 {
-  "rooms": ["604"],
-  "reason": "测试"
+  "rooms": ["604"]
 }
 ```
 
@@ -297,14 +276,18 @@ X-API-Key: storage/api_key 的内容
 }
 ```
 
-服务会自动映射为设备 ID `2003134696`，并在内部使用 `rf_id=15`、`lock=1`。
+服务会自动映射为：
+
+```text
+设备 ID：2003134696
+rf_id：15
+```
 
 支持批量房间：
 
 ```json
 {
-  "rooms": ["1-407", "1-604"],
-  "reason": "批量测试"
+  "rooms": ["1-407", "1-604"]
 }
 ```
 
@@ -313,7 +296,7 @@ X-API-Key: storage/api_key 的内容
 ```json
 {
   "device_ids": ["2004103660"],
-  "reason": "测试"
+  "rf_id": 5
 }
 ```
 
@@ -394,14 +377,14 @@ idst_rooms_config.py
 
 | 房间 | 设备 ID | rf_id |
 |---|---:|---:|
-| 1-408 | 2007302751 | 15 |
+| 1-408 | 2007302751 | 待确认 |
 | 1-407 | 2003134696 | 15 |
-| 1-405 | 2003432370 | 15 |
-| 1-406 | 2000119870 | 15 |
-| 1-603 | 2007185429 | 5 |
+| 1-405 | 2003432370 | 待确认 |
+| 1-406 | 2000119870 | 待确认 |
+| 1-603 | 2007185429 | 待确认 |
 | 1-604 | 2004103660 | 5 |
 
-IDST 业务接口按房间映射自动选择 `rf_id`，内部固定使用 `lock=1`，调用方只需要传房间号和可选的 `reason`。
+如果房间没有配置 `rf_id`，调用时需要传入 `rf_id`；已配置的房间会优先使用映射中的值。
 
 ## 常驻运行
 
@@ -419,21 +402,21 @@ IDST 业务接口按房间映射自动选择 `rf_id`，内部固定使用 `lock=
 
 ### Linux systemd
 
-将项目部署到目标目录后，修改 `door_service.service` 中的：
+CentOS 10 使用连字符目录 `/opt/campus-door-master`。Python 模块名中的下划线（例如 `idst_rooms_config.py`）属于代码导入名，不要改名。
 
-```text
-WorkingDirectory
-ExecStart
-EnvironmentFile
-```
-
-然后执行：
+将项目上传到 `/opt/campus-door-master` 后执行：
 
 ```bash
-sudo cp door_service.service /etc/systemd/system/campus-door-master.service
-sudo systemctl daemon-reload
-sudo systemctl enable --now campus-door-master
+cd /opt/campus-door-master
+sudo APP_DIR=/opt/campus-door-master bash deploy_centos10.sh
+sudo systemctl start campus-door-master
 sudo systemctl status campus-door-master
+```
+
+设置开机启动（部署脚本已执行，也可手动执行）：
+
+```bash
+sudo systemctl enable campus-door-master
 ```
 
 查看日志：

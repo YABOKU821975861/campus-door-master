@@ -1,20 +1,22 @@
 [Unit]
-Description=Campus Door Control API Service
-After=network.target
+Description=Campus Door Master API Service
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 Type=simple
-User=root
-WorkingDirectory=/opt/campus_door_master
-ExecStart=/usr/bin/python3 /opt/campus_door_master/main.py
+User=campusdoor
+Group=campusdoor
+WorkingDirectory=/opt/campus-door-master
+ExecStart=/opt/campus-door-master/.venv/bin/python /opt/campus-door-master/main.py
 Restart=always
 RestartSec=5
 StandardOutput=journal
 StandardError=journal
 
-# 环境变量（必须配置 API 鉴权密钥；建议使用 root-only 文件保存）
-EnvironmentFile=-/etc/campus_door_master/campus-door-master.env
-# Environment=PYTHONPATH=/opt/campus_door_master
+# 环境变量文件由 deploy_centos10.sh 放在项目目录中
+EnvironmentFile=-/opt/campus-door-master/campus-door-master.env
+# Environment=PYTHONPATH=/opt/campus-door-master
 # Environment=LOG_LEVEL=INFO
 
 # 资源限制（可选）

@@ -1,6 +1,6 @@
 """IDST HTTP 路由，与 ADO 门禁路由隔离。"""
 
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
@@ -19,7 +19,7 @@ class IdstRfControlRequest(BaseModel):
 class IdstControlRequest(BaseModel):
     rooms: List[str] = Field(default_factory=list)
     device_ids: List[str] = Field(default_factory=list)
-    reason: str = Field(default="IDST 开门操作")
+    rf_id: Optional[int] = Field(default=None, ge=0)
 
 
 def create_idst_router(
@@ -42,13 +42,13 @@ def create_idst_router(
     @router.post("/api/v1/idst/open", dependencies=[Depends(require_api_key)])
     async def idst_control(request: IdstControlRequest):
         device_ids = list(request.device_ids)
-        device_rf_ids = {}
+        room_rf_ids = {}
         unknown_rooms = []
         for room in request.rooms:
             device = get_idst_device(room)
             if device and device["id"] not in device_ids:
                 device_ids.append(device["id"])
-                device_rf_ids[device["id"]] = device["rf_id"]
+                room_rf_ids[device["id"]] = device["rf_id"]
             elif not device:
                 unknown_rooms.append(room)
 
@@ -60,16 +60,13 @@ def create_idst_router(
         results = []
         try:
             for device_id in device_ids:
-                # IDST 当前只提供开门业务，rf_id 按房间映射自动选择。
-                rf_id = device_rf_ids.get(device_id, 5)
+                rf_id = room_rf_ids.get(device_id) or request.rf_id
+                if rf_id is None:
+                    raise HTTPException(status_code=400, detail=f"设备 {device_id} 未配置 rf_id")
                 result = await run_in_threadpool(
                     idst_driver.control_device, device_id, rf_id, 1
                 )
-                results.append({
-                    "device_id": device_id,
-                    "reason": request.reason,
-                    "result": result,
-                })
+                results.append({"device_id": device_id, "result": result})
         except IdstSessionError as exc:
             raise HTTPException(status_code=502, detail=str(exc)) from exc
         except IdstDriverError as exc:
